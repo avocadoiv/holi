@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import integrate
+import sympy
+from scipy.integrate import odeint
+
+mu2,p1,g1,g2,r2,b,a,mu3,p2,g3 = 0.03,0.1245,2e7,1e5,0.18,1e-9,1,10,5,1e3 
+ #cambiar por las variables adecuadas 
+c=8.55e-5
+
+
+#################################### CASO SIN TRATAMIENTO
+def dP_dt(P, t):
+    E=P[0]
+    T=P[1]
+    IL=P[2]
+    return [c*T - mu2*E + p1*E*IL/(g1+IL),  r2*(1-b*T)*T - a*E*T/(g2 + T), p2*E*T/(g3 + T) - mu3*IL] #entradas de tu ecuación
+
+
+
+ts = np.linspace(0, 2000, 1000)
+P0 = [100, 100, 100] #condición inicial
+sol = odeint(dP_dt, P0, ts)
+Efector = sol[:,0]
+Tumorales = sol[:,1]
+IL2=sol[:,2]
+
+#plt.yscale('log')
+fig,ax=plt.subplots(1,2,figsize=(12,6))
+ax[0].semilogy(ts, Efector, "-+", label="Efector")
+ax[0].semilogy(ts, Tumorales, "-x", label="Tumorales")
+ax[0].semilogy(ts, IL2, "-", label="IL2")
+#plt.xlim(0, 4000)
+ax[0].set_xlabel("Time")
+ax[0].set_ylabel("Population")
+ax[0].legend(loc=4);
+
+ax[1].plot(Efector,Tumorales)
+ax[1].set_ylabel("Células Tumorales")
+ax[1].set_xlabel("Células Efectoras")
+#ax[1].legend(loc=1);
